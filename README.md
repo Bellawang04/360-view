@@ -62,6 +62,18 @@
 
 ---
 
+## 数据接口替换路线图
+
+从 Mock 演示接入真实 SAP 数据，共两个替换点，前端代码改动最小：
+
+![接口替换路线图](docs/360-replacement-roadmap.png)
+
+**替换点1（智能提醒组）：** 写好5个 ABAP CDS View + 批量 Job 后，只需改 `Component.ts` 2行，把 `XHR 读 app.json` 换成 `ODataModel(Z_CUST_KPI_SRV)`。
+
+**替换点2（Basis + 智能分析组）：** 在 `/IWFND/MAINT_SERVICE` 激活 F2187A / F4645 对应 Service，配置 Fiori Launchpad Role，再通过 UI Adaptation 将4张自定义卡片嵌入标准 F2187A。
+
+---
+
 ## 4周里程碑
 
 - [ ] **第1周**：开通SAP自带监控页面 + 找样本客户 + 建测试客户
