@@ -1,0 +1,105 @@
+{
+	"_version": "2.0.0",
+
+	"sap.app": {
+		"id": "com.yiqian.customer360",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"applicationVersion": {
+			"version": "${version}"
+		},
+		"sourceTemplate": {
+			"id": "@ui5/mcp-server:ts",
+			"version": "0.2.12"
+		}
+	},
+
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "com.yiqian.customer360.view.App",
+			"type": "XML",
+			"id": "app"
+		},
+
+		"dependencies": {
+			"minUI5Version": "1.136.19",
+			"libs": {
+				"sap.ui.core": {},
+				"sap.m": {},
+				"sap.ui.layout": {}
+			}
+		},
+
+		"flexEnabled": false,
+		"handleValidation": true,
+
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "com.yiqian.customer360.i18n.i18n",
+					"async": true
+				}
+			}
+		},
+
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"type": "View",
+				"viewType": "XML",
+				"path": "com.yiqian.customer360.view",
+				"controlId": "app",
+				"controlAggregation": "pages"
+			},
+			"routes": [
+				{
+					"pattern": "",
+					"name": "launchpad",
+					"target": "launchpad"
+				},
+				{
+					"pattern": "customer/{customerId}",
+					"name": "customer360",
+					"target": "customer360"
+				},
+				{
+					"pattern": "customers",
+					"name": "customerList",
+					"target": "customerList"
+				}
+			],
+			"targets": {
+				"launchpad": {
+					"id": "launchpad",
+					"name": "Launchpad"
+				},
+				"customer360": {
+					"id": "customer360",
+					"name": "Customer360"
+				},
+				"customerList": {
+					"id": "customerList",
+					"name": "CustomerList"
+				}
+			}
+		}
+	}
+}
