@@ -56,6 +56,24 @@
 
 ---
 
+## 技术架构
+
+![技术架构图](docs/360-alert-arch.png)
+
+---
+
+## 数据接口替换路线图
+
+从 Mock 演示接入真实 SAP 数据，共两个替换点，前端代码改动最小：
+
+![接口替换路线图](docs/360-replacement-roadmap.png)
+
+**替换点1（智能提醒组）：** 写好5个 ABAP CDS View + 批量 Job 后，只需改 `Component.ts` 2行，把 `XHR 读 app.json` 换成 `ODataModel(Z_CUST_KPI_SRV)`。
+
+**替换点2（Basis + 智能分析组）：** 在 `/IWFND/MAINT_SERVICE` 激活 F2187A / F4645 对应 Service，配置 Fiori Launchpad Role，再通过 UI Adaptation 将4张自定义卡片嵌入标准 F2187A。
+
+---
+
 ## 4周里程碑
 
 - [ ] **第1周**：开通SAP自带监控页面 + 找样本客户 + 建测试客户
@@ -75,11 +93,39 @@
 
 ---
 
-## 文档结构
+## 仓库结构
 
 ```
 360-view/
-├── Index.md                          # 项目总索引
+├── README.md                         # 本文件：项目总览
+├── Index.md                          # 项目总索引（Obsidian 入口）
+│
+├── src/                              # 所有可运行源码
+│   ├── frontend/                     # SAPUI5 前端 Demo
+│   │   ├── webapp/
+│   │   │   ├── controller/           # 三个页面的控制器逻辑
+│   │   │   ├── view/                 # XML 视图（Launchpad/360详情/客户列表）
+│   │   │   └── model/app.json        # ⭐ Mock 数据，改这里换演示数据
+│   │   ├── package.json
+│   │   └── README.md                 # 前端启动说明（含接口改造计划）
+│   │
+│   ├── abap/                         # ABAP 源码（第2-3周填入）
+│   │   ├── cds/                      # CDS View 定义文件
+│   │   │   ├── Z_C_AR_AGING_ALERT    # 智能提醒组：AR账龄逾期
+│   │   │   ├── Z_C_CREDIT_UTIL       # 智能提醒组：信用额度预警
+│   │   │   ├── Z_C_CUST_INACTIVITY   # 智能提醒组：长期未下单
+│   │   │   ├── Z_C_CONTRACT_EXPIRY   # 智能提醒组：合同快到期
+│   │   │   ├── Z_C_REBATE_UNSIGNED   # 智能提醒组：返利协议未签
+│   │   │   └── Z_C_RFM_SCORE         # 智能分析组：RFM评分
+│   │   ├── jobs/                     # 批量 Job ABAP 程序
+│   │   │   └── Z_CUST_KPI_JOB        # 每日扫描 → 写入 Z_CUST_KPI_CACHE
+│   │   └── odata/                    # OData Service 定义
+│   │       └── Z_CUST_KPI_SRV        # 前端接口改造后使用
+│   │
+│   └── scripts/                      # 工具脚本
+│       ├── test-data/                # 往SAP测试系统写样本数据的脚本
+│       └── deploy/                   # 部署/激活辅助脚本
+│
 ├── 01_业务背景/
 │   ├── 业务背景.md                   # 5大预警体系分析 + 业务价值量化
 │   └── POC计划.md                    # 4周安排、验收标准、两组分工
@@ -103,6 +149,16 @@
 └── 06_测试数据/
     └── 测试数据准备.md               # 6个测试客户建立方法及事务码
 ```
+
+### src 目录说明
+
+| 目录 | 用途 | 当前状态 | 负责方 |
+|------|------|---------|--------|
+| `src/frontend/` | SAPUI5 前端 Demo，含 Mock 数据 | ✅ 可运行 | 两组共用 |
+| `src/abap/cds/` | 5个预警 + 1个RFM 的 CDS View 源码 | 🔲 第2周填入 | 智能提醒+分析组 |
+| `src/abap/jobs/` | 每日批量 Job ABAP 程序 | 🔲 第3周填入 | 智能提醒组 |
+| `src/abap/odata/` | 前端接口改造用 OData Service | 🔲 第4周填入 | 智能提醒组 |
+| `src/scripts/` | 测试数据 & 部署辅助脚本 | 🔲 按需填入 | 两组共用 |
 
 ---
 

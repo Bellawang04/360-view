@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="expires" content="0" />
+
+		<meta charset="utf-8" />
+
+		<title>UI5 Application: com.yiqian.customer360</title>
+
+		<style>
+			/* Fix GenericTile footer text clipping — sapMTileCntFtrTxt has overflow:hidden + height:16px */
+			.sapMTileCntFtrTxt {
+				overflow: visible !important;
+				height: auto !important;
+				min-height: 16px !important;
+				white-space: nowrap !important;
+			}
+			.sapMTileCnt {
+				overflow: visible !important;
+			}
+			.sapMGT {
+				overflow: visible !important;
+			}
+		</style>
+
+		<script
+			id="sap-ui-bootstrap"
+			src="resources/sap-ui-core.js"
+			data-sap-ui-resource-roots='{
+				"com.yiqian.customer360": "./"
+			}'
+			data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
+			data-sap-ui-compat-version="edge"
+			data-sap-ui-frame-options="trusted"
+			data-sap-ui-async="true"
+		></script>
+	</head>
+
+	<body class="sapUiBody">
+		<div data-sap-ui-component data-name="com.yiqian.customer360"></div>
+	</body>
+</html>

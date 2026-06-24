@@ -1,0 +1,157 @@
+<mvc:View
+	controllerName="com.yiqian.customer360.controller.CustomerList"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:l="sap.ui.layout"
+	xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+
+	<Page
+		id="customerListPage"
+		title="客户概览"
+		showNavButton="true"
+		navButtonPress=".onNavBack"
+		backgroundDesign="Solid">
+		<headerContent>
+			<Button icon="sap-icon://excel-attachment" tooltip="导出 Excel" press=".onExport" />
+			<Button icon="sap-icon://sort" tooltip="排序" press=".onSort" />
+		</headerContent>
+		<content>
+			<VBox class="sapUiSmallMarginTop sapUiSmallMarginBeginEnd">
+				<!-- 快速筛选 -->
+				<ScrollContainer horizontal="true" vertical="false" class="sapUiSmallMarginBottom">
+					<HBox>
+						<Button
+							text="全部"
+							type="Emphasized"
+							press=".onFilter"
+							customData:key="filter"
+							customData:value="all"
+							class="sapUiTinyMarginEnd" />
+						<Button
+							text="高风险"
+							type="Ghost"
+							press=".onFilter"
+							customData:key="filter"
+							customData:value="highRisk"
+							class="sapUiTinyMarginEnd" />
+						<Button
+							text="合约到期"
+							type="Ghost"
+							press=".onFilter"
+							customData:key="filter"
+							customData:value="contractExpiry"
+							class="sapUiTinyMarginEnd" />
+						<Button
+							text="RFM D级"
+							type="Ghost"
+							press=".onFilter"
+							customData:key="filter"
+							customData:value="rfmD"
+							class="sapUiTinyMarginEnd" />
+						<Button
+							text="长期未活跃"
+							type="Ghost"
+							press=".onFilter"
+							customData:key="filter"
+							customData:value="inactive"
+							class="sapUiTinyMarginEnd" />
+					</HBox>
+				</ScrollContainer>
+
+				<!-- 客户表格 -->
+				<Table
+					id="customerTable"
+					items="{app>/customers}"
+					growing="true"
+					growingThreshold="20"
+					growingScrollToLoad="true"
+					alternateRowColors="true"
+					sticky="ColumnHeaders"
+					itemPress=".onCustomerPress"
+					mode="None">
+					<columns>
+						<Column width="30%">
+							<Text text="客户名称" />
+						</Column>
+						<Column width="12%" hAlign="End">
+							<Text text="销售额(万)" />
+						</Column>
+						<Column width="12%" hAlign="Center">
+							<Text text="AR状态" />
+						</Column>
+						<Column width="8%" hAlign="Center">
+							<Text text="RFM" />
+						</Column>
+						<Column width="15%" hAlign="Center">
+							<Text text="合约状态" />
+						</Column>
+						<Column width="13%" hAlign="Center">
+							<Text text="风险状态" />
+						</Column>
+						<Column width="10%" hAlign="Center">
+							<Text text="操作" />
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem
+							type="Active"
+							press=".onCustomerPress"
+							customData:key="customerId"
+							customData:value="{app>id}">
+							<cells>
+								<!-- 客户名称 + 负责人 -->
+								<VBox>
+									<Text text="{app>name}" wrapping="false" />
+									<Text text="{app>salesRep}" class="sapUiTinyMarginTop" />
+								</VBox>
+
+								<!-- 销售额 -->
+								<ObjectNumber
+									number="{= (${app>revenue}/10000).toFixed(1)}"
+									unit="万"
+									state="None" />
+
+								<!-- AR状态 -->
+								<ObjectStatus
+									text="{app>arStatusText}"
+									state="{app>arStatusState}"
+									icon="{= ${app>arStatus} > 1 ? 'sap-icon://status-negative' : (${app>arStatus} === 1 ? 'sap-icon://status-critical' : 'sap-icon://status-positive')}" />
+
+								<!-- RFM等级 -->
+								<ObjectStatus
+									text="{app>rfmTier}"
+									state="{= ${app>rfmTier} === 'A' ? 'Success' : (${app>rfmTier} === 'B' ? 'Information' : (${app>rfmTier} === 'C' ? 'Warning' : 'Error'))}" />
+
+								<!-- 合约状态 -->
+								<ObjectStatus
+									text="{= ${app>contractDays} &lt;= 0 ? '已过期' : (${app>contractDays} &lt;= 30 ? ${app>contractDays} + '天到期' : (${app>contractDays} &lt;= 60 ? ${app>contractDays} + '天' : '正常'))}"
+									state="{= ${app>contractDays} &lt;= 0 ? 'Error' : (${app>contractDays} &lt;= 30 ? 'Error' : (${app>contractDays} &lt;= 60 ? 'Warning' : 'Success'))}" />
+
+								<!-- 风险状态 -->
+								<ObjectStatus
+									text="{app>riskStateText}"
+									state="{= ${app>riskState} === 'Warning' ? 'Warning' : 'Success'}" />
+
+								<!-- 操作按钮 -->
+								<Button
+									text="查看"
+									type="Transparent"
+									press=".onCustomerPress"
+									customData:key="customerId"
+									customData:value="{app>id}" />
+							</cells>
+						</ColumnListItem>
+					</items>
+					<noData>
+						<IllustratedMessage
+							title="暂无符合条件的客户"
+							description="请调整筛选条件"
+							illustrationType="sapIllus-NoFilterResults" />
+					</noData>
+				</Table>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

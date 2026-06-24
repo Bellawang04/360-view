@@ -1,0 +1,19 @@
+# 旧文件夹（重命名前的残留，内容已迁移到 src/frontend）
+com.yiqian.customer360/
+
+# Node 依赖
+node_modules/
+src/frontend/node_modules/
+
+# UI5 构建产物
+dist/
+src/frontend/dist/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/settings.json
+.idea/

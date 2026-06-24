@@ -1,0 +1,268 @@
+<mvc:View
+	controllerName="com.yiqian.customer360.controller.Customer360"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:l="sap.ui.layout">
+
+	<Page
+		id="customer360Page"
+		title="客户360°视图"
+		showNavButton="true"
+		navButtonPress=".onNavBack"
+		backgroundDesign="Solid">
+		<headerContent>
+			<Button text="操作 ▼" type="Transparent" />
+			<Button icon="sap-icon://share-2" tooltip="分享" />
+		</headerContent>
+		<content>
+			<VBox class="sapUiSmallMargin">
+
+				<!-- 客户头部 -->
+				<Panel backgroundDesign="Solid" class="sapUiSmallMarginBottom">
+					<content>
+						<HBox alignItems="Center" class="sapUiSmallMargin">
+							<VBox>
+								<Title id="customerName" text="{customer>/name}" level="H2" />
+								<HBox class="sapUiTinyMarginTop">
+									<Label text="编号: " design="Bold" />
+									<Text text="{customer>/id}" class="sapUiTinyMarginEnd" />
+									<Label text="销售组织: " design="Bold" />
+									<Text text="{customer>/salesOrg}" class="sapUiTinyMarginEnd" />
+									<Label text="负责人: " design="Bold" />
+									<Text text="{customer>/salesRep}" />
+								</HBox>
+								<HBox class="sapUiSmallMarginTop" wrap="Wrap">
+									<ObjectStatus
+										title="财务风险"
+										text="{customer>/arStatusText}"
+										state="{customer>/arStatusState}"
+										class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+										press=".onBadgePress"
+										active="true" />
+									<ObjectStatus
+										title="合约状态"
+										text="{= ${customer>/contractDays} &lt;= 30 ? '⚠ ' + ${customer>/contractDays} + '天到期' : (${customer>/contractDays} &lt;= 60 ? '📅 ' + ${customer>/contractDays} + '天' : '✓ 正常')}"
+										state="{= ${customer>/contractDays} &lt;= 30 ? 'Error' : (${customer>/contractDays} &lt;= 60 ? 'Warning' : 'Success')}"
+										class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+										press=".onBadgePress"
+										active="true" />
+									<ObjectStatus
+										title="RFM等级"
+										text="{= 'RFM: ' + ${customer>/rfmTier} + '级'}"
+										state="{= ${customer>/rfmTier} === 'A' ? 'Success' : (${customer>/rfmTier} === 'B' ? 'Information' : (${customer>/rfmTier} === 'C' ? 'Warning' : 'Error'))}"
+										class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+										press=".onBadgePress"
+										active="true" />
+									<ObjectStatus
+										title="工商状态"
+										text="{customer>/externalRiskText}"
+										state="{= ${customer>/externalRiskLevel} === 0 ? 'Success' : (${customer>/externalRiskLevel} === 1 ? 'Warning' : 'Error')}"
+										class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+										press=".onBadgePress"
+										active="true" />
+								</HBox>
+							</VBox>
+						</HBox>
+					</content>
+				</Panel>
+
+				<!-- 卡片网格 -->
+				<l:Grid defaultSpan="XL4 L4 M6 S12" class="sapUiSmallMarginBottom">
+					<l:content>
+
+						<!-- 卡片A：财务风险雷达 -->
+						<Panel
+							headerText="💰 财务风险雷达 [智能提醒组]"
+							expandable="true"
+							expanded="true"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<Button text="→ 展开详情 (F4663)" type="Transparent" press=".onExpandFinance" class="sapUiTinyMarginTop" />
+									<Label text="应收账款账龄" design="Bold" class="sapUiTinyMarginBottom" />
+									<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+										<Text text="当前  " width="50px" />
+										<ObjectStatus text="{= '¥' + (${customer>/arCurrent}/10000).toFixed(1) + '万'}" state="None" />
+									</HBox>
+									<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+										<Text text="30天  " width="50px" />
+										<ObjectStatus
+											text="{= '¥' + (${customer>/ar30}/10000).toFixed(1) + '万'}"
+											state="{= ${customer>/ar30} > 0 ? 'Warning' : 'None'}" />
+									</HBox>
+									<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+										<Text text="60天  " width="50px" />
+										<ObjectStatus
+											text="{= '¥' + (${customer>/ar60}/10000).toFixed(1) + '万'}"
+											state="{= ${customer>/ar60} > 0 ? 'Error' : 'None'}" />
+									</HBox>
+									<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+										<Text text="90天+ " width="50px" />
+										<ObjectStatus
+											text="{= '¥' + (${customer>/ar90}/10000).toFixed(1) + '万'}"
+											state="{= ${customer>/ar90} > 0 ? 'Error' : 'None'}"
+											icon="{= ${customer>/ar90} > 0 ? 'sap-icon://status-negative' : ''}" />
+									</HBox>
+									<Text text="{= '总逾期: ¥' + ((${customer>/ar30}+${customer>/ar60}+${customer>/ar90})/10000).toFixed(1) + '万'}" class="sapUiTinyMarginTop" />
+									<Label text="信贷额度" design="Bold" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+									<ProgressIndicator
+										percentValue="{customer>/creditUtil}"
+										displayValue="{= '已用 ' + ${customer>/creditUtil} + '%'}"
+										state="{= ${customer>/creditUtil} > 100 ? 'Error' : (${customer>/creditUtil} > 85 ? 'Warning' : 'Success')}"
+										showValue="true" />
+									<Text text="{= '额度: ¥' + (${customer>/creditLimit}/10000).toFixed(0) + '万  已用: ¥' + (${customer>/creditUsed}/10000).toFixed(0) + '万'}" class="sapUiTinyMarginTop" />
+								</VBox>
+							</content>
+						</Panel>
+
+						<!-- 卡片B：销售活跃度 -->
+						<Panel
+							headerText="📊 销售活跃度 [智能提醒组]"
+							expandable="true"
+							expanded="true"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<Button text="→ 查看订单" type="Transparent" press=".onViewOrders" class="sapUiTinyMarginTop" />
+									<ObjectStatus
+										title="活跃状态"
+										text="{= ${customer>/inactivitySt} === 'ACTIVE' ? '✓ 正常活跃' : (${customer>/inactivitySt} === 'WARNING' ? '⚠ 关注' : '🔴 未下单预警')}"
+										state="{= ${customer>/inactivitySt} === 'ACTIVE' ? 'Success' : (${customer>/inactivitySt} === 'WARNING' ? 'Warning' : 'Error')}"
+										class="sapUiTinyMarginBottom" />
+									<Text text="{= '距上次下单: ' + ${customer>/daysInactive} + ' 天'}" class="sapUiTinyMarginBottom" />
+									<Label text="近期订单" design="Bold" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+									<List items="{customer>/orders}" showNoData="false">
+										<CustomListItem>
+											<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBeginEnd">
+												<VBox>
+													<Text text="{id}" />
+													<Text text="{date}" />
+												</VBox>
+												<ObjectStatus text="{= '¥' + Number(${amount}).toLocaleString()}" state="{statusState}" />
+											</HBox>
+										</CustomListItem>
+									</List>
+								</VBox>
+							</content>
+						</Panel>
+
+						<!-- 卡片C：合约状态 -->
+						<Panel
+							headerText="📋 合约状态 [智能提醒组]"
+							expandable="true"
+							expanded="true"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<Button text="→ 查看合约" type="Transparent" press=".onViewContracts" class="sapUiTinyMarginTop" />
+									<Label text="框架合同" design="Bold" class="sapUiTinyMarginBottom" />
+									<ObjectListItem
+										title="{customer>/contractName}"
+										icon="sap-icon://document-text"
+>
+										<firstStatus>
+											<ObjectStatus
+												text="{= '剩余 ' + ${customer>/contractDays} + ' 天'}"
+												state="{= ${customer>/contractDays} &lt;= 30 ? 'Error' : (${customer>/contractDays} &lt;= 60 ? 'Warning' : 'Success')}" />
+										</firstStatus>
+									</ObjectListItem>
+									<Label text="返利协议" design="Bold" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+									<ObjectListItem
+										title="{= ${customer>/rebateYear} + '年度返利协议'}"
+										icon="{= ${customer>/rebateSt} === 'SIGNED' ? 'sap-icon://accept' : 'sap-icon://status-critical'}"
+>
+										<firstStatus>
+											<ObjectStatus
+												text="{= ${customer>/rebateSt} === 'SIGNED' ? '✓ 已签署' : (${customer>/rebateSt} === 'UNSIGNED' ? '⚠ 未签署' : '不适用')}"
+												state="{= ${customer>/rebateSt} === 'SIGNED' ? 'Success' : (${customer>/rebateSt} === 'UNSIGNED' ? 'Error' : 'None')}" />
+										</firstStatus>
+									</ObjectListItem>
+								</VBox>
+							</content>
+						</Panel>
+
+						<!-- 卡片D：AI洞察 -->
+						<Panel
+							headerText="🤖 客户洞察 AI [智能分析组]"
+							expandable="true"
+							expanded="true"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<HBox alignItems="Center" class="sapUiSmallMarginTop sapUiTinyMarginBottom">
+										<ObjectStatus
+											title="RFM等级"
+											text="{= ${customer>/rfmTier} + '级 · ' + (${customer>/rfmTier} === 'A' ? '高价值客户' : (${customer>/rfmTier} === 'B' ? '成长型客户' : (${customer>/rfmTier} === 'C' ? '潜力客户' : '流失预警')))}"
+											state="{= ${customer>/rfmTier} === 'A' ? 'Success' : (${customer>/rfmTier} === 'B' ? 'Information' : (${customer>/rfmTier} === 'C' ? 'Warning' : 'Error'))}" />
+									</HBox>
+									<Text text="{= '综合评分: ' + ${customer>/rfmScore} + ' / 10'}" class="sapUiTinyMarginBottom" />
+									<Label text="R (近度)" class="sapUiTinyMarginTop" />
+									<ProgressIndicator percentValue="{customer>/rfmR}" displayValue="{customer>/rfmR}" state="Success" showValue="true" />
+									<Label text="F (频度)" class="sapUiTinyMarginTop" />
+									<ProgressIndicator percentValue="{customer>/rfmF}" displayValue="{customer>/rfmF}" state="Success" showValue="true" />
+									<Label text="M (金额)" class="sapUiTinyMarginTop" />
+									<ProgressIndicator percentValue="{customer>/rfmM}" displayValue="{customer>/rfmM}" state="Success" showValue="true" />
+									<ObjectStatus text="客户生命周期 → Phase 2" state="None" icon="sap-icon://future" class="sapUiSmallMarginTop" />
+									<ObjectStatus text="流失预测 → Phase 3" state="None" icon="sap-icon://customer-history" class="sapUiTinyMarginTop" />
+								</VBox>
+							</content>
+						</Panel>
+
+						<!-- 卡片E：外部风险 -->
+						<Panel
+							headerText="🏢 外部风险 [智能提醒组 · 演示数据]"
+							expandable="true"
+							expanded="true"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<MessageStrip
+										text="Phase 1 演示数据 · Phase 2 接入企查查 API"
+										type="Information"
+										showCloseButton="false"
+										class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
+									<ObjectListItem title="工商状态" icon="sap-icon://company-view">
+										<firstStatus>
+											<ObjectStatus
+												text="{customer>/externalRiskText}"
+												state="{= ${customer>/externalRiskLevel} === 0 ? 'Success' : (${customer>/externalRiskLevel} === 1 ? 'Warning' : 'Error')}" />
+										</firstStatus>
+									</ObjectListItem>
+									<ObjectListItem title="法院/执行" icon="sap-icon://citizen-connect">
+										<firstStatus>
+											<ObjectStatus
+												text="{= ${customer>/externalRiskLevel} >= 2 ? '有执行记录' : '无记录'}"
+												state="{= ${customer>/externalRiskLevel} >= 2 ? 'Error' : 'Success'}" />
+										</firstStatus>
+									</ObjectListItem>
+									<Text text="数据更新: 2026-06-09" class="sapUiTinyMarginTop" />
+								</VBox>
+							</content>
+						</Panel>
+
+						<!-- 联系人 -->
+						<Panel
+							headerText="👤 联系人信息"
+							expandable="true"
+							expanded="false"
+							backgroundDesign="Solid">
+							<content>
+								<VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom">
+									<ObjectListItem title="王总 (CEO)" icon="sap-icon://person-placeholder" description="138-xxxx-xxxx">
+										<firstStatus>
+											<ObjectStatus text="主要联系人" state="Success" />
+										</firstStatus>
+									</ObjectListItem>
+									<ObjectListItem title="李采购 (采购部)" icon="sap-icon://person-placeholder" description="139-xxxx-xxxx" />
+								</VBox>
+							</content>
+						</Panel>
+
+					</l:content>
+				</l:Grid>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

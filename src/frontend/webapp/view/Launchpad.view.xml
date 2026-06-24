@@ -1,0 +1,338 @@
+<mvc:View
+	controllerName="com.yiqian.customer360.controller.Launchpad"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:l="sap.ui.layout"
+	xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+
+	<Page
+		id="launchpadPage"
+		showHeader="false"
+		backgroundDesign="Solid">
+		<customHeader>
+			<Bar design="Header">
+				<contentLeft>
+					<Image
+						src="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg"
+						height="28px"
+						alt="SAP" />
+					<Text text=" " width="8px" />
+					<Text
+						text="Fiori Launchpad"
+						class="sapUiSmallMarginBegin"
+						design="Bold" />
+				</contentLeft>
+				<contentMiddle>
+					<SearchField
+						width="320px"
+						placeholder="搜索应用和功能..."
+						search=".onSearch" />
+				</contentMiddle>
+				<contentRight>
+					<Button icon="sap-icon://bell" tooltip="通知" press=".onNotifications">
+						<customData>
+							<core:CustomData key="badge" value="8" />
+						</customData>
+					</Button>
+					<Button icon="sap-icon://grid" tooltip="切换视图" press=".onToggleView" />
+					<Avatar
+						initials="张W"
+						displaySize="XS"
+						press=".onProfile"
+						class="sapUiSmallMarginBegin" />
+				</contentRight>
+			</Bar>
+		</customHeader>
+		<content>
+			<!-- 角色切换 Tab -->
+			<IconTabBar
+				id="roleTabBar"
+				select=".onRoleChange"
+				backgroundDesign="Solid"
+				class="sapUiNoContentPadding">
+				<items>
+					<IconTabFilter
+						id="salesTab"
+						text="销售代表工作台"
+						icon="sap-icon://sales-order"
+						key="sales" />
+					<IconTabFilter
+						text="财务风险监控"
+						icon="sap-icon://manager-insight"
+						key="finance" />
+					<IconTabFilter
+						text="客户价值总览"
+						icon="sap-icon://customer"
+						key="mgmt" />
+				</items>
+				<content>
+					<!-- ===== 销售代表视图 ===== -->
+					<VBox id="salesView" class="sapUiMediumMarginTop sapUiMediumMarginBeginEnd">
+
+						<!-- KPI Tiles 区域标题 -->
+						<Title text="我的客户预警" level="H4" class="sapUiSmallMarginBottom" />
+
+						<!-- KPI Alert Tiles -->
+						<l:Grid
+							defaultSpan="XL3 L3 M6 S12"
+							class="sapUiSmallMarginBottom"
+							style="padding-bottom: 8px">
+							<l:content>
+								<!-- 高流失风险 -->
+								<GenericTile
+									id="highRiskTile"
+									header="高流失风险"
+									subheader="RFM D级 + 近期未下单"
+									press=".onTilePress"
+									customData:key="nav"
+									customData:value="highRisk"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent
+											unit="个客户"
+											footer="+3 较上月">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/highRisk}"
+													scale=""
+													valueColor="Critical"
+													icon="sap-icon://alert" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<!-- 合约即将到期 -->
+								<GenericTile
+									header="合约即将到期"
+									subheader="30天内到期"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent
+											unit="个客户"
+											footer="-2 较上月">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/contractExpiry}"
+													scale=""
+													valueColor="Critical"
+													icon="sap-icon://date-time" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<!-- 外部风险 -->
+								<GenericTile
+									header="外部风险客户"
+									subheader="工商/法院风险"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent
+											unit="个客户"
+											footer="工商/法院预警">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/externalRisk}"
+													scale=""
+													valueColor="Error"
+													icon="sap-icon://warning2" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<!-- 长期未拜访 -->
+								<GenericTile
+									header="长期未拜访"
+									subheader=">60天无接触"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent
+											unit="个客户"
+											footer=">60天无订单">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/longInactive}"
+													scale=""
+													valueColor="Critical"
+													icon="sap-icon://customer" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+							</l:content>
+						</l:Grid>
+
+						<!-- My Sales Overview 内嵌区域 -->
+						<Title text="我的销售概览" level="H4" class="sapUiSmallMarginBottom" />
+
+						<Panel
+							class="sapUiSmallMarginBottom"
+							backgroundDesign="Solid">
+							<content>
+								<!-- 客户列表快速入口 -->
+								<List
+									id="myCustomerList"
+									headerText="近期客户动态"
+									items="{app>/customers}"
+									itemPress=".onCustomerPress"
+									mode="None">
+									<StandardListItem
+										title="{app>name}"
+										description="{= 'RFM: ' + ${app>rfmTier} + ' · 销售额: ¥' + ${app>revenue}.toLocaleString()}"
+										icon="{= ${app>rfmTier} === 'A' ? 'sap-icon://accept' : (${app>rfmTier} === 'D' ? 'sap-icon://warning' : 'sap-icon://customer')}"
+										iconInset="false"
+										info="{app>arStatusText}"
+										infoState="{app>arStatusState}"
+										type="Active"
+										customData:key="customerId"
+										customData:value="{app>id}" />
+								</List>
+								<Button
+									text="查看全部客户"
+									type="Transparent"
+									press=".onViewAllCustomers"
+									class="sapUiSmallMargin" />
+							</content>
+						</Panel>
+					</VBox>
+
+					<!-- ===== 财务视图 ===== -->
+					<VBox id="financeView" visible="false" class="sapUiMediumMarginTop sapUiMediumMarginBeginEnd">
+						<Title text="财务风险监控" level="H4" class="sapUiSmallMarginBottom" />
+						<l:Grid defaultSpan="XL4 L4 M6 S12" class="sapUiSmallMarginBottom">
+							<l:content>
+								<GenericTile
+									header="AR逾期30天+"
+									subheader="应收账款逾期"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent unit="万元" footer="涉及18家客户">
+											<content>
+												<NumericContent
+													value="234"
+													scale="万"
+													valueColor="Critical"
+													icon="sap-icon://money-bills" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<GenericTile
+									header="信贷超额"
+									subheader="信用额度超100%"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent unit="个客户" footer="占用>100%">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/creditExceeded}"
+													scale=""
+													valueColor="Error"
+													icon="sap-icon://shield" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<GenericTile
+									header="待收款项"
+									subheader="Phase 2 功能"
+									frameType="OneByOne"
+									state="Disabled">
+									<tileContent>
+										<TileContent footer="即将上线 (Phase 2)">
+											<content>
+												<NumericContent value="--" valueColor="Neutral" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+							</l:content>
+						</l:Grid>
+					</VBox>
+
+					<!-- ===== 管理层视图 ===== -->
+					<VBox id="mgmtView" visible="false" class="sapUiMediumMarginTop sapUiMediumMarginBeginEnd">
+						<Title text="客户价值总览" level="H4" class="sapUiSmallMarginBottom" />
+						<l:Grid defaultSpan="XL4 L4 M6 S12" class="sapUiSmallMarginBottom">
+							<l:content>
+								<GenericTile
+									header="A级客户"
+									subheader="高价值客户"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent unit="%" footer="高频高额近期购买">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/customerValueA}"
+													scale="%"
+													valueColor="Good"
+													icon="sap-icon://accept" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<GenericTile
+									header="D级客户"
+									subheader="流失预警"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent unit="%" footer="长期不活跃或已流失">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/customerValueD}"
+													scale="%"
+													valueColor="Critical"
+													icon="sap-icon://alert" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+
+								<GenericTile
+									header="本月新增预警"
+									subheader="新进入风险区间"
+									press=".onTilePress"
+									frameType="OneByOne"
+									state="Loaded">
+									<tileContent>
+										<TileContent unit="个" footer="较上月新增">
+											<content>
+												<NumericContent
+													value="{app>/kpiTiles/riskNewThisMonth}"
+													scale=""
+													valueColor="Critical"
+													icon="sap-icon://status-negative" />
+											</content>
+										</TileContent>
+									</tileContent>
+								</GenericTile>
+							</l:content>
+						</l:Grid>
+					</VBox>
+				</content>
+			</IconTabBar>
+		</content>
+	</Page>
+</mvc:View>
